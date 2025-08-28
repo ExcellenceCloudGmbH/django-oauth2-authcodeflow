@@ -203,7 +203,7 @@ class AuthenticationBackend(ModelBackend, AuthenticationMixin):
             id_token = result['id_token']
             access_token = result['access_token']
             access_expires_in = result.get('expires_in')  # in secs, could be missing
-            refresh_token = result.get('refresh_token') if 'offline_access' in settings.OIDC_RP_SCOPES else None
+            refresh_token = result.get('refresh_token')
             id_claims = self.validate_and_decode_id_token(id_token, nonce, request.session.get(constants.SESSION_OP_JWKS, {}))
             self.validate_claims(id_claims)
             now_ts = int(datetime.now(tz=timezone.utc).timestamp())
