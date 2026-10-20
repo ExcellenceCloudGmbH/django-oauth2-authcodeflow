@@ -9,12 +9,12 @@ from typing import (
     cast,
 )
 
+import jwt
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.utils import DatabaseError
 from django.utils.functional import cached_property
-from jose import jwt
 
 from .conf import settings
 
@@ -38,7 +38,7 @@ class BlacklistedToken(models.Model):
 
     @classmethod
     def blacklist(cls, token: str) -> Optional['BlacklistedToken']:
-        claims = jwt.get_unverified_claims(token)
+        claims = jwt.decode(token, options={'verify_signature': False})
         username = settings.OIDC_DJANGO_USERNAME_FUNC(claims)
         now = datetime.now(tz=timezone.utc)
         if 'exp' in claims:
@@ -53,7 +53,7 @@ class BlacklistedToken(models.Model):
 
     @classmethod
     def is_blacklisted(cls, token: str) -> bool:
-        claims = jwt.get_unverified_claims(token)
+        claims = jwt.decode(token, options={'verify_signature': False})
         username = settings.OIDC_DJANGO_USERNAME_FUNC(claims)
         return cls.objects.filter(username=username, token=token).count() > 0
 
